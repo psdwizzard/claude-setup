@@ -10,6 +10,7 @@ $claude = Join-Path $HOME '.claude'
 
 $files = @(
   'CLAUDE.md',
+  'keybindings.json',
   'skills\codex-review\SKILL.md',
   'skills\codex-implementation\SKILL.md',
   'skills\codex-computer-use\SKILL.md',

@@ -1,5 +1,14 @@
 # Dev Blog
 
+## 2026-07-19 — Keybindings: shift+enter for newline
+
+**What changed:** Added `claude/keybindings.json` binding shift+enter to `chat:newline`
+(soft return in the prompt input); added it to `collect.ps1`'s file list. `install.ps1`
+already copies it (recursive copy of `claude/`).
+**State:** Works via ctrl+j-equivalent action; shift+enter needs a terminal that
+reports it distinctly (some terminals send plain enter — ctrl+j is the fallback).
+**Where we left off:** Same as below — verify the installer on a second machine.
+
 ## 2026-07-19 — Initial repo: portable Claude Code + Codex setup
 
 **What changed:** Created the repo from the live `~/.claude` setup on the main desktop.

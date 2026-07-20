@@ -16,6 +16,7 @@ pick it up.
 ## Layout
 
 - `claude/CLAUDE.md` — global instructions (model rubric, close-out routine, etc.)
+- `claude/keybindings.json` — Claude Code keybindings (shift+enter = newline)
 - `claude/skills/{codex-implementation,codex-review,codex-computer-use,close-out}/SKILL.md`
 - `install.ps1` — copies `claude/` → `~/.claude`; patches exactly three top-level keys in
   `~/.codex/config.toml` (model gpt-5.6-sol, effort medium, approval_policy never) and
