@@ -46,6 +46,11 @@ to or override these.
 - **Always use a virtualenv** — `.venv` inside the project folder (keeps it off my C:
   drive). **Avoid `conda` and `uv`** — they tend to fill up my primary drive.
 
+## Credentials / API keys
+- **fal API key**: on the Mac it lives in `/Users/kennethloebenberg/.config/fal/env`.
+  When a task needs fal, source that file (or read the key from it) instead of asking me
+  for the key. Never print the key itself or commit it anywhere.
+
 ## AI / ML / CUDA
 - For anything AI/ML, use **CUDA-enabled builds**. My GPU is an **RTX 3090** (Ampere).
 - Check what the specific project needs and **match the CUDA/toolkit version** to it.
