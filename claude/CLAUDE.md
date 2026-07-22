@@ -3,6 +3,10 @@
 These are my personal defaults for every project. Project-level `CLAUDE.md` files add
 to or override these.
 
+**Note:** this file is shared across my machines (Windows desktop and Mac). Some sections
+are machine-specific — if a section does not pertain to the operating system you are on,
+please ignore it.
+
 ## Communication
 - I frequently use **voice-to-text**, so my messages often contain mis-transcribed words
   (e.g. "Cloud ND" → "CLAUDE.md", "Kanda" → "conda"). When a word looks odd or out of
@@ -39,19 +43,21 @@ to or override these.
 - **`docs/progress.md`** — where we are in that plan: what's done, what's not.
 
 ## Running things
-- Always provide a **`run.bat`** at the project root that does **everything** needed to
-  start the app (activate the venv, set env, launch). I want one command to get going.
+- Always provide a **one-command launcher** at the project root that does **everything**
+  needed to start the app (activate the venv, set env, launch). On Windows that's a
+  `run.bat`; on the Mac a `run.sh`. I want one command to get going.
 
 ## Python
-- **Always use a virtualenv** — `.venv` inside the project folder (keeps it off my C:
-  drive). **Avoid `conda` and `uv`** — they tend to fill up my primary drive.
+- **Always use a virtualenv** — `.venv` inside the project folder. **Avoid `conda` and
+  `uv`** — they tend to fill up my primary drive.
 
 ## Credentials / API keys
 - **fal API key**: on the Mac it lives in `/Users/kennethloebenberg/.config/fal/env`.
   When a task needs fal, source that file (or read the key from it) instead of asking me
   for the key. Never print the key itself or commit it anywhere.
 
-## AI / ML / CUDA
+## AI / ML / CUDA (Windows desktop only)
+- If this does not pertain to the operating system you are on, please ignore this section.
 - For anything AI/ML, use **CUDA-enabled builds**. My GPU is an **RTX 3090** (Ampere).
 - Check what the specific project needs and **match the CUDA/toolkit version** to it.
   After setup, **verify the GPU is actually being used** and tell me if it can't be.
