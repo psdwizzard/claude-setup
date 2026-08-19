@@ -1,0 +1,44 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+credentials.json
+secrets.json
+
+# Claude/Codex machine state (portable source lives in claude/)
+.claude/
+.codex/
+claude/.credentials.json
+claude/settings.local.json
+claude/history.jsonl
+claude/auth-profiles.json
+claude/debug/
+claude/file-history/
+claude/projects/
+claude/session-env/
+claude/shell-snapshots/
+claude/statsig/
+claude/telemetry/
+claude/todos/
+claude/tasks/
+claude/*.db
+claude/*.sqlite*
+
+# Local backups and temporary files
+.backups/
+*.bak
+*.tmp
+*.log

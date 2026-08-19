@@ -1,86 +1,115 @@
-# =============================================================================
-#  Claude Code + Codex - machine setup installer
-#  Usage: run.bat   (or: powershell -ExecutionPolicy Bypass -File install.ps1)
-#
-#  1. Copies the files under claude\ into ~/.claude (global CLAUDE.md + skills).
-#  2. Sets three keys in ~/.codex/config.toml to this repo's standard values
-#     (model = gpt-5.6-sol, model_reasoning_effort = medium, approval_policy =
-#     never - the same values setup-claude-codex.ps1 has always applied). Only
-#     those three lines are touched; the [projects] trust list and everything
-#     else Codex wrote is preserved. Safe to re-run; after "git pull", re-run
-#     to apply updates to this machine.
-# =============================================================================
+[CmdletBinding()]
+param(
+  [switch]$DryRun,
+  [switch]$NoBackup
+)
 
 $ErrorActionPreference = 'Stop'
-$repo   = $PSScriptRoot
-$claude = Join-Path $HOME '.claude'
-$codex  = Join-Path $HOME '.codex'
+$repo = $PSScriptRoot
+$sourceClaude = Join-Path $repo 'claude'
+$liveClaude = Join-Path $HOME '.claude'
+$liveCodex = Join-Path $HOME '.codex'
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$backupRoot = Join-Path $HOME (Join-Path '.claude-setup-backups' $timestamp)
+$backupCreated = $false
 
-Write-Host ""
+function Backup-ExistingFile {
+  param(
+    [Parameter(Mandatory)] [string]$Path,
+    [Parameter(Mandatory)] [string]$RelativeBackupPath
+  )
+
+  if ($NoBackup -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+
+  $backupPath = Join-Path $backupRoot $RelativeBackupPath
+  if ($DryRun) {
+    Write-Host "  would backup $Path -> $backupPath"
+    return
+  }
+
+  $backupDir = Split-Path $backupPath -Parent
+  New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+  Copy-Item -LiteralPath $Path -Destination $backupPath -Force
+  $script:backupCreated = $true
+}
+
+if (-not (Test-Path -LiteralPath $sourceClaude -PathType Container)) {
+  throw "Portable source folder not found: $sourceClaude"
+}
+
 Write-Host "Installing Claude Code + Codex setup from $repo" -ForegroundColor Cyan
-Write-Host "Home: $HOME"
-Write-Host ""
+if ($DryRun) { Write-Host "DRY RUN: no files will change." -ForegroundColor Yellow }
 
-# ---- ~/.claude files (CLAUDE.md + skills) -----------------------------------
-$src = Join-Path $repo 'claude'
-Get-ChildItem $src -Recurse -File | ForEach-Object {
-  $rel  = $_.FullName.Substring($src.Length + 1)
-  $dest = Join-Path $claude $rel
-  $dir  = Split-Path $dest -Parent
-  if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
-  Copy-Item $_.FullName $dest -Force
-  Write-Host "  wrote  $dest"
-}
+Get-ChildItem -LiteralPath $sourceClaude -Recurse -File | Sort-Object FullName | ForEach-Object {
+  $relative = $_.FullName.Substring($sourceClaude.Length + 1)
+  $destination = Join-Path $liveClaude $relative
+  $unchanged = (Test-Path -LiteralPath $destination -PathType Leaf) -and
+    ((Get-FileHash -LiteralPath $_.FullName).Hash -eq (Get-FileHash -LiteralPath $destination).Hash)
 
-# ---- Codex config -----------------------------------------------------------
-$want = [ordered]@{
-  'model'                  = 'gpt-5.6-sol'
-  'model_reasoning_effort' = 'medium'
-  'approval_policy'        = 'never'
-}
-
-$cfgPath = Join-Path $codex 'config.toml'
-if (Test-Path $cfgPath) {
-  $cfg = Get-Content $cfgPath -Raw
-  foreach ($k in $want.Keys) {
-    $line    = "$k = `"$($want[$k])`""
-    $pattern = "(?m)^\s*$([regex]::Escape($k))\s*=.*$"
-    if ($cfg -match $pattern) {
-      $current = [regex]::Match($cfg, $pattern).Value.Trim()
-      if ($current -eq $line) {
-        Write-Host "  ok     $line"
-      } else {
-        $cfg = [regex]::Replace($cfg, $pattern, $line, 1)
-        Write-Host "  patch  $current  ->  $line"
-      }
+  if ($unchanged) {
+    Write-Host "  ok           $destination"
+  } else {
+    Backup-ExistingFile -Path $destination -RelativeBackupPath (Join-Path 'claude' $relative)
+    if ($DryRun) {
+      Write-Host "  would write  $destination"
     } else {
-      # prepend: top of file = top-level TOML, before any [table] section
-      $cfg = "$line`r`n" + $cfg
-      Write-Host "  add    $line"
+      $destinationDir = Split-Path $destination -Parent
+      New-Item -ItemType Directory -Force -Path $destinationDir | Out-Null
+      Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
+      Write-Host "  wrote        $destination"
     }
   }
-  [System.IO.File]::WriteAllText($cfgPath, $cfg, (New-Object System.Text.UTF8Encoding($false)))
-} else {
-  $lines = foreach ($k in $want.Keys) { "$k = `"$($want[$k])`"" }
-  $seed  = ($lines -join "`r`n") + "`r`n"
-  if (-not (Test-Path $codex)) { New-Item -ItemType Directory -Force -Path $codex | Out-Null }
-  [System.IO.File]::WriteAllText($cfgPath, $seed, (New-Object System.Text.UTF8Encoding($false)))
-  Write-Host "  wrote  $cfgPath (fresh; Codex adds its own [projects] entries as you use it)"
 }
 
-# ---- sanity checks ----------------------------------------------------------
-Write-Host ""
-Write-Host "Checking CLIs..." -ForegroundColor Cyan
-$codexCmd = Get-Command codex -ErrorAction SilentlyContinue
-if ($codexCmd) {
-  Write-Host "  ok     codex found: $($codexCmd.Source)"
-} else {
-  Write-Host "  WARN   codex not on PATH. Install it with:  npm install -g @openai/codex" -ForegroundColor Yellow
+$wantedCodexSettings = [ordered]@{
+  'model' = 'gpt-5.6-sol'
+  'model_reasoning_effort' = 'medium'
+  'approval_policy' = 'never'
 }
-$claudeCmd = Get-Command claude -ErrorAction SilentlyContinue
-if (-not $claudeCmd) {
-  Write-Host "  WARN   claude not on PATH. Install Claude Code first." -ForegroundColor Yellow
+
+$configPath = Join-Path $liveCodex 'config.toml'
+$originalConfig = if (Test-Path -LiteralPath $configPath -PathType Leaf) {
+  Get-Content -LiteralPath $configPath -Raw
+} else {
+  ''
+}
+$config = $originalConfig
+
+foreach ($key in $wantedCodexSettings.Keys) {
+  $wantedLine = "$key = `"$($wantedCodexSettings[$key])`""
+  $pattern = "(?m)^\s*$([regex]::Escape($key))\s*=.*$"
+  if ($config -match $pattern) {
+    $config = [regex]::Replace($config, $pattern, $wantedLine, 1)
+  } else {
+    $config = "$wantedLine`r`n$config"
+  }
+}
+
+if ($config -ceq $originalConfig) {
+  Write-Host "  ok           $configPath"
+} else {
+  Backup-ExistingFile -Path $configPath -RelativeBackupPath 'codex\config.toml'
+  if ($DryRun) {
+    Write-Host "  would update $configPath"
+  } else {
+    New-Item -ItemType Directory -Force -Path $liveCodex | Out-Null
+    [System.IO.File]::WriteAllText(
+      $configPath,
+      $config,
+      [System.Text.UTF8Encoding]::new($false)
+    )
+    Write-Host "  updated      $configPath"
+  }
 }
 
 Write-Host ""
-Write-Host "Done. Start a NEW Claude Code session for CLAUDE.md + skills to load." -ForegroundColor Green
+if ($DryRun) {
+  Write-Host "Dry run complete; no files changed." -ForegroundColor Green
+} else {
+  if ($backupCreated) {
+    Write-Host "Backup saved to $backupRoot" -ForegroundColor Green
+  } elseif (-not $NoBackup) {
+    Write-Host "No existing files needed backup." -ForegroundColor DarkGray
+  }
+  Write-Host "Done. Start a new Claude Code session to load the updated files." -ForegroundColor Green
+}

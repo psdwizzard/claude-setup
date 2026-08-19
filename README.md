@@ -1,106 +1,158 @@
 # claude-setup
 
-A portable [Claude Code](https://claude.com/claude-code) + [Codex CLI](https://github.com/openai/codex)
-configuration: one global `CLAUDE.md`, a set of custom skills, keybindings, and Codex CLI
-defaults. Clone it on a new machine, run one command, and that machine works like all the
-others.
+An opinionated, portable [Claude Code](https://claude.com/claude-code) and
+[Codex CLI](https://github.com/openai/codex) configuration. It keeps global instructions,
+custom skills, keybindings, and selected Codex defaults in Git so the same workflow can be
+installed on multiple machines.
 
-The core idea: **treat your AI-assistant configuration like dotfiles.** The live files in
-`~/.claude` are what Claude Code actually reads; this repo is their portable source of
-truth. An installer copies repo → machine, a collector copies machine → repo, and git moves
-changes between machines.
+The central idea is to treat AI-assistant configuration like dotfiles. The live files in
+`~/.claude` are what Claude Code reads; this repository is the reviewed, portable source of
+truth. An installer copies repository to machine, a collector copies declared files back,
+and Git moves reviewed changes between machines.
 
-## Set up a new machine
+## Why this setup is useful
 
-1. Install [Claude Code](https://claude.com/claude-code) and the Codex CLI
-   (`npm install -g @openai/codex`), and sign in to both once.
-2. Clone this repo and run:
+The `close-out` and `spin-up` skills form a session handoff loop:
 
-   ```
-   run.bat          (Windows)
-   ```
+1. `close-out` records what changed, refreshes project context, and safely commits and pushes.
+2. `spin-up` reads that handoff, compares it with the live repository, and provides a short
+   briefing before new work begins.
 
-   On a Mac (no PowerShell), copy the files by hand — same effect:
+The other skills use Codex as a separate implementation, review, or runtime-verification
+agent while Claude remains responsible for scope and verification.
 
-   ```bash
-   cp -R claude/ ~/.claude/
-   ```
+## Prerequisites
 
-   and add these three top-level keys to `~/.codex/config.toml` if they're missing
-   (top of the file, before any `[table]` section):
+- Git
+- Claude Code, signed in once
+- Codex CLI, signed in once (`npm install -g @openai/codex`)
+- GitHub CLI (`gh`) for the multi-account push workflow
+- Windows: Windows PowerShell 5.1 or PowerShell 7
+- macOS/Linux: Bash plus standard Unix tools (`awk`, `find`, `grep`, and `mktemp`)
 
-   ```toml
-   model = "gpt-5.6-sol"
-   model_reasoning_effort = "medium"
-   approval_policy = "never"
-   ```
+## Install
 
-3. Start a **new** Claude Code session so the CLAUDE.md and skills load.
+First clone or fork the repository. Forking is recommended if you want to keep your own
+preferences under version control.
 
-The installer only touches those three Codex keys — everything else in
-`~/.codex/config.toml` (project trust lists, plugins, MCP servers) is preserved. Safe to
-re-run anytime, e.g. after every `git pull`.
+### Windows
 
-## Update the setup (on the machine where you changed it)
+Preview the operation:
 
-Edits happen to the live files in `~/.claude` (usually via a Claude session). To publish
-them:
-
-```
-powershell -ExecutionPolicy Bypass -File collect.ps1   # copies live files into the repo
-git add -A ; git commit -m "..." ; git push            # or tell Claude to "push to git"
+```powershell
+run.bat -DryRun
 ```
 
-Then on every other machine: `git pull` and `run.bat` (or the Mac copy above).
+Install:
 
-## What's in the global CLAUDE.md
+```powershell
+run.bat
+```
 
-`claude/CLAUDE.md` is loaded into every Claude Code session on the machine. Mine covers:
+### macOS and Linux
 
-- **Session workflow** — many short sessions per project, each ending with a close-out
-  (dev blog entry + project CLAUDE.md refresh + push) so the next session can re-orient
-  without re-explaining anything.
-- **Docs conventions** — every project keeps `docs/devblog.md` (running log, newest first),
-  `docs/plan.md`, and `docs/progress.md`.
-- **A model-selection rubric** — a small cost/intelligence/taste table that tells Claude
-  which model to use for subagents and workflows, when to delegate bulk work to Codex
-  (gpt-5.6-sol), and when to escalate.
-- Project conventions (one-command launchers, Python venvs, Node/npm, dark mode default).
+Preview the operation:
 
-Machine-specific sections (CUDA/GPU stuff) are marked so sessions on other operating
-systems skip them.
+```bash
+./install.sh --dry-run
+```
 
-## The skills
+Install:
 
-Skills are reusable instruction sets Claude Code loads on demand (or when you type
-`/skill-name`). The ones in `claude/skills/`:
+```bash
+./install.sh
+```
 
-| skill | what it does |
-|-------|--------------|
-| **close-out** | The end-of-session routine, triggered by "push to git" / "close out". Updates the dev blog, refreshes the project CLAUDE.md, resolves which GitHub account can actually push to the repo's remote (multi-account safe: switches, pushes, and always restores the original account), then commits and pushes. Includes safety rules: never force-push, never set a global git identity, always show what's going out before it goes. |
-| **spin-up** | The mirror image of close-out, for the start of a session: reads the project CLAUDE.md, the top of the dev blog, and plan/progress docs, checks git state for drift, then delivers a short "where we left off / what's next" briefing and stops for instructions — it never starts working on its own. |
-| **codex-implementation** | Delegates a scoped implementation task to the Codex CLI (gpt-5.6-sol), then has Claude inspect the resulting diff and verification before accepting it. |
-| **codex-review** | Gets an independent code review from Codex on uncommitted changes, a branch diff, or a commit — a second model's perspective on Claude's (or your) work. |
-| **codex-computer-use** | Hands Codex tasks that need computer use: driving a browser, taking screenshots, launching and inspecting a running app to verify behavior. |
+Existing files are backed up by default under
+`~/.claude-setup-backups/<timestamp>/`. Pass `-NoBackup` on Windows or `--no-backup` on
+macOS/Linux only when you intentionally do not want a backup.
 
-The close-out/spin-up pair is the heart of the workflow: close-out writes the handoff,
-spin-up reads it back. Together they make Claude Code sessions resumable across days and
-machines without any re-explaining.
+The installer copies `claude/` into `~/.claude/` and changes only these top-level Codex
+settings in `~/.codex/config.toml`:
 
-## Layout
+```toml
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+approval_policy = "never"
+```
 
-| path | what |
-|------|------|
-| `claude/CLAUDE.md` | global instructions for all projects |
-| `claude/keybindings.json` | Claude Code keybindings (shift+enter = newline) |
-| `claude/skills/` | the five skills above |
-| `install.ps1` / `run.bat` | apply this repo to the current machine |
-| `collect.ps1` | pull live `~/.claude` edits back into the repo |
-| `docs/devblog.md` | this repo's own running dev log |
+All other Codex configuration, including project trust entries, plugins, and MCP servers,
+is preserved. Review these opinionated defaults before installing; in particular,
+`approval_policy = "never"` assumes you are comfortable supervising non-interactive runs.
 
-## Adapting it for yourself
+Start a new Claude Code session after installation so the instructions and skills load.
 
-Fork it, gut `claude/CLAUDE.md` down to your own conventions, and keep the skills that fit
-your workflow. The two scripts don't care what's inside `claude/` — they just sync it.
-Nothing in this repo contains credentials; API keys stay in local files outside git (the
-CLAUDE.md tells Claude where to find them, never their contents).
+## Update the portable source
+
+Edits normally happen in the live `~/.claude` files. The collector copies back only files
+that are already declared under this repository's `claude/` directory. This allowlist-by-tree
+design prevents caches, credentials, conversation history, and newly installed third-party
+skills from being swept into Git accidentally.
+
+Windows:
+
+```powershell
+.\collect.ps1 -DryRun
+.\collect.ps1
+```
+
+macOS/Linux:
+
+```bash
+./collect.sh --dry-run
+./collect.sh
+```
+
+Always inspect `git diff` before committing. To add another portable skill, first create its
+destination under `claude/skills/<skill-name>/SKILL.md`; later collection runs will include
+it automatically.
+
+## Included skills
+
+| Skill | Purpose |
+|---|---|
+| `close-out` | Updates the dev blog and project overview, resolves the correct GitHub identity, then commits and pushes safely. |
+| `spin-up` | Reads the handoff documents and Git state, then gives a concise session briefing and waits. |
+| `codex-implementation` | Delegates a bounded implementation to Codex, then requires Claude to inspect and verify the result. |
+| `codex-review` | Requests an independent Codex review of working changes, a branch, or a commit. |
+| `codex-computer-use` | Delegates browser, screenshot, simulator, or running-app verification to Codex. |
+
+## Repository layout
+
+| Path | Purpose |
+|---|---|
+| `claude/CLAUDE.md` | Global instructions loaded into Claude Code sessions |
+| `claude/keybindings.json` | Shared Claude Code keybindings |
+| `claude/skills/` | Portable custom skills |
+| `install.ps1`, `install.sh`, `run.bat` | Safe installers with backup and dry-run support |
+| `collect.ps1`, `collect.sh` | Copy declared live files back into the repository |
+| `tests/validate.ps1` | Static repository and privacy checks |
+| `docs/devblog.md` | Running development handoff for this repository |
+
+## Adapt it for yourself
+
+Before installing a fork, review `claude/CLAUDE.md` and change or remove:
+
+- machine-specific hardware and credential-location notes;
+- model names and routing preferences;
+- language, package-manager, UI, and documentation conventions;
+- the GitHub account workflow if you use only one account;
+- any instructions tied to tools unavailable in your environment.
+
+Model availability and CLI syntax change over time, so treat model identifiers as user
+configuration rather than permanent recommendations.
+
+## Security notes
+
+- Credentials belong in environment variables or an external secret store, never this repo.
+- `.gitignore` excludes common Claude/Codex state, local settings, credentials, logs, and
+  private-key formats.
+- Collection is limited to repository-declared files, but that is not a substitute for
+  reviewing the diff.
+- Enable GitHub secret scanning and push protection when your account supports them.
+- Git commit metadata may expose your configured author email. Use GitHub's noreply address
+  if you do not want a personal email published.
+
+## License
+
+Released under the [MIT License](LICENSE).

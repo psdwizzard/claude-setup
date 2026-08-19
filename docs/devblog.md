@@ -1,5 +1,30 @@
 # Dev Blog
 
+## 2026-08-19 — Public starter-kit hardening
+
+**What changed:** Added an MIT license and privacy-focused `.gitignore`. Reworked both
+PowerShell scripts to support dry runs; installation now backs up overwritten Claude and
+Codex files, while collection dynamically follows the files already declared under the
+repo's `claude/` tree instead of maintaining a hardcoded list. Added equivalent Bash
+install/collect scripts for macOS and Linux, and made `run.bat` forward installer flags.
+Rewrote the README around prerequisites, safe installation, personalization, security,
+and cross-platform use. Added a PowerShell validator plus Windows/Ubuntu GitHub Actions
+checks for skill frontmatter, common privacy leaks, script syntax, and installer dry runs.
+
+**State:** Local privacy/static validation passes for all five skills. PowerShell install
+and collect dry runs pass; both Bash scripts pass syntax checks and dry runs under Git for
+Windows. The opinionated `approval_policy = "never"` default remains unchanged by request.
+
+**Where we left off:** The repository is now structured as a reusable public starter kit,
+not only a personal Windows dotfiles snapshot. CI still needs its first GitHub run after
+push to confirm native Ubuntu behavior.
+
+**Open / TODO:**
+- Confirm the first GitHub Actions run passes on Windows and Ubuntu.
+- Exercise a real install on a disposable fresh account or VM to verify backup restoration.
+- Consider rewriting existing commit metadata to a GitHub noreply email separately; that
+  requires an explicit history rewrite and force-push.
+
 ## 2026-08-19 — Mac install, spin-up skill, shareable README, privacy pass
 
 **What changed:** Installed the setup on the Mac (manually — install.ps1 is Windows
