@@ -14,7 +14,8 @@ $files = @(
   'skills\codex-review\SKILL.md',
   'skills\codex-implementation\SKILL.md',
   'skills\codex-computer-use\SKILL.md',
-  'skills\close-out\SKILL.md'
+  'skills\close-out\SKILL.md',
+  'skills\spin-up\SKILL.md'
 )
 
 Write-Host ""

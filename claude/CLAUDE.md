@@ -52,7 +52,7 @@ please ignore it.
   `uv`** — they tend to fill up my primary drive.
 
 ## Credentials / API keys
-- **fal API key**: on the Mac it lives in `/Users/kennethloebenberg/.config/fal/env`.
+- **fal API key**: on the Mac it lives in `~/.config/fal/env`.
   When a task needs fal, source that file (or read the key from it) instead of asking me
   for the key. Never print the key itself or commit it anywhere.
 
@@ -61,6 +61,10 @@ please ignore it.
 - For anything AI/ML, use **CUDA-enabled builds**. My GPU is an **RTX 3090** (Ampere).
 - Check what the specific project needs and **match the CUDA/toolkit version** to it.
   After setup, **verify the GPU is actually being used** and tell me if it can't be.
+
+## Share Sites
+- if the users ask for a site for any reason, such as comparing outputs, displaying reports or any other reason they give never use an artifact.
+- Have the site be in a folder so it can be zipped up with everything in it.
 
 ## Frontend / Node
 - Prefer **Node.js**. Use **npm** as the package manager. Choose the framework per project
@@ -77,7 +81,7 @@ Taste = UI/UX, code quality, API design, and copy.
 |----------|-----:|-------------:|------:|
 | gpt-5.6-sol  | 9    | 8            | 5     |
 | sonnet-5 | 5    | 5            | 7     |
-| opus-4.8 | 4    | 7            | 8     |
+| opus-5 | 4    | 7            | 8     |
 | fable-5  | 2    | 9            | 9     |
 
 How to apply:
