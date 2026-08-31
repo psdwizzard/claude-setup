@@ -1,5 +1,26 @@
 # Dev Blog
 
+## 2026-08-30 — Sanitizing collector + upstream config sync
+
+**What changed:** `collect.sh` now sanitizes the payload after copying: it strips the
+"Work import" section that machine-specific setups may append to their live global
+CLAUDE.md (an `@`-import of a private, employer-specific file that must never ship
+here), then runs a word-boundary leak check over `claude/` and fails the sync if any
+work reference survives. Synced the latest live config: CLAUDE.md gained share-site
+rules (self-contained static HTML that opens from `file://`; a web server only when
+genuinely required), a "Protect your context: when to delegate" section (orchestrate
+big projects through subagents), and a scoped one-command-launcher rule; close-out
+notes that static sites have no launcher; codex-implementation now mandates
+foreground `codex exec` with a long timeout plus `codex exec resume --last`, never
+backgrounding.
+
+**State:** Collector verified end-to-end (strip + leak check pass on a CRLF live file).
+
+**Where we left off:** Payload current with the live Mac config as of today.
+
+**Open / TODO:** Port the same strip + leak check to `collect.ps1` (ASCII-only
+constraint applies) so Windows collections get the same guarantee.
+
 ## 2026-08-19 — Public starter-kit hardening
 
 **What changed:** Added an MIT license and privacy-focused `.gitignore`. Reworked both

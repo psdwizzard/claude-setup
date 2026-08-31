@@ -38,8 +38,15 @@ codex exec -s workspace-write -o "$REPORT" - < "$PROMPT"
 
 `-o "$REPORT"` captures Codex's final message. `-s workspace-write` confines edits to the
 working directory. Add `--skip-git-repo-check` only if intentionally running outside a git
-repo. For a long implementation, raise the Bash timeout or run in the background and poll
-for `$REPORT`.
+repo. For a long implementation, run Codex **FOREGROUND with an explicit long Bash timeout
+(600000 ms)**; if it times out, continue it with `codex exec resume --last` (repeat as
+needed) until it finishes.
+
+**Never run codex in the background and end your turn to "wait for it."** A backgrounded
+`codex exec` is not tracked by the harness — an agent that ends its turn while codex runs
+is never woken again and stalls indefinitely (this happened in the field, 2026-08-26).
+This applies doubly inside subagents/wrappers: stay in the loop, foreground, until the
+report file exists.
 
 ## Implementation Prompt
 

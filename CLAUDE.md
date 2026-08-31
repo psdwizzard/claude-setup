@@ -29,7 +29,16 @@ git" / close-out).
   and dry-run checks.
 - `docs/devblog.md` — this repo's running log; read the top entry to re-orient.
 
-## Current state (2026-08-19)
+## Current state (2026-08-30)
+
+- `collect.sh` now sanitizes after copying: strips the "## Work import" `@`-import
+  section from `claude/CLAUDE.md` (private employer file, never ships here) and fails
+  the sync if a leak check finds any work reference in the payload. `collect.ps1` does
+  NOT have this yet — port it (ASCII-only).
+- Payload synced with the live Mac config: share-site `file://` rules, delegation
+  section, codex foreground-run rule.
+
+## Previous state (2026-08-19)
 
 - Cross-platform PowerShell/Bash install and collect scripts are present, with backup and
   dry-run support.

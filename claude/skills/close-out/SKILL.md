@@ -51,7 +51,8 @@ Keep it **under 200 lines**. You decide what's most useful for a cold restart. A
 - **One-liner:** what this project is.
 - **Stack:** language, framework, key deps.
 - **Run it:** the one-command launcher (`run.bat` on Windows, `run.sh` on Mac) and any
-  setup (venv, env vars).
+  setup (venv, env vars). For a static share site there is no launcher — just note which
+  HTML file to double-click.
 - **Architecture at a glance:** the few files/dirs that matter and how they fit.
 - **Current state:** where things stand (mirror the dev blog's "where we left off").
 - **Gotchas:** anything non-obvious that would trip up a fresh agent.
