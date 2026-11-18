@@ -21,7 +21,7 @@ git" / close-out).
 - `claude/skills/{codex-implementation,codex-review,codex-computer-use,close-out,spin-up}/SKILL.md`
 - `install.ps1` / `install.sh` — copy `claude/` → `~/.claude`; back up overwritten files;
   patch exactly three top-level keys in
-  `~/.codex/config.toml` (model gpt-5.6-sol, effort medium, approval_policy never) and
+  `~/.codex/config.toml` (model gpt-6.2-astra, effort medium, approval_policy never) and
   preserves everything else, especially the `[projects]` trust list.
 - `collect.ps1` / `collect.sh` — reverse copy for files already declared under `claude/`.
 - `run.bat` — runs `install.ps1` and forwards command-line flags.
@@ -29,7 +29,13 @@ git" / close-out).
   and dry-run checks.
 - `docs/devblog.md` — this repo's running log; read the top entry to re-orient.
 
-## Current state (2026-08-30)
+## Current state (2026-11-18)
+
+- Model names bumped: gpt-6.2-astra (Codex), sonnet-5.5, opus-5.5, fable-5.2. Scores
+  unchanged from the old names — re-score after use. Installers set gpt-6.2-astra.
+- Windows desktop live config now matches this repo.
+
+## Previous state (2026-08-30)
 
 - `collect.sh` now sanitizes after copying: strips the "## Work import" `@`-import
   section from `claude/CLAUDE.md` (private employer file, never ships here) and fails
@@ -38,7 +44,7 @@ git" / close-out).
 - Payload synced with the live Mac config: share-site `file://` rules, delegation
   section, codex foreground-run rule.
 
-## Previous state (2026-08-19)
+## Older state (2026-08-19)
 
 - Cross-platform PowerShell/Bash install and collect scripts are present, with backup and
   dry-run support.

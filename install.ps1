@@ -62,7 +62,7 @@ Get-ChildItem -LiteralPath $sourceClaude -Recurse -File | Sort-Object FullName |
 }
 
 $wantedCodexSettings = [ordered]@{
-  'model' = 'gpt-5.6-sol'
+  'model' = 'gpt-6.2-astra'
   'model_reasoning_effort' = 'medium'
   'approval_policy' = 'never'
 }

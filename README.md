@@ -71,7 +71,7 @@ The installer copies `claude/` into `~/.claude/` and changes only these top-leve
 settings in `~/.codex/config.toml`:
 
 ```toml
-model = "gpt-5.6-sol"
+model = "gpt-6.2-astra"
 model_reasoning_effort = "medium"
 approval_policy = "never"
 ```

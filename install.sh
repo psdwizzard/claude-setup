@@ -58,7 +58,7 @@ temp_config="$(mktemp)"
 trap 'rm -f "$temp_config" "$temp_config.next"' EXIT
 if [[ -f "$config_path" ]]; then cp "$config_path" "$temp_config"; fi
 for setting in \
-  'model = "gpt-5.6-sol"' \
+  'model = "gpt-6.2-astra"' \
   'model_reasoning_effort = "medium"' \
   'approval_policy = "never"'; do
   key="${setting%% *}"

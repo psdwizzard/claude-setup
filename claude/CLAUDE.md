@@ -81,7 +81,7 @@ report back.
   - **Orienting/searching** across many files or an unfamiliar area → an **Explore**
     agent that returns conclusions (paths + facts), not file contents.
   - **Bulky or mechanical implementation** with a clear spec → a subagent (or
-    gpt-5.6-sol per the model rubric below). Parallel implementers need
+    gpt-6.2-astra per the model rubric below). Parallel implementers need
     `isolation: 'worktree'`.
   - **A step with long output** (test suites, builds, migrations, scraping) → run it in
     a subagent that reports only failures/summary.
@@ -101,12 +101,12 @@ report back.
 Rankings, higher = better. Cost reflects what I actually pay (OpenAI has really generous
 limits), not list price. Intelligence = how hard a problem you can hand it unsupervised.
 Taste = UI/UX, code quality, API design, and copy.
-| model    | cost | intelligence | taste |
-|----------|-----:|-------------:|------:|
-| gpt-5.6-sol  | 9    | 8            | 5     |
-| sonnet-5 | 5    | 5            | 7     |
-| opus-5 | 4    | 7            | 8     |
-| fable-5  | 2    | 9            | 9     |
+| model         | cost | intelligence | taste |
+|---------------|-----:|-------------:|------:|
+| gpt-6.2-astra |    9 |            8 |     5 |
+| sonnet-5.5    |    5 |            5 |     7 |
+| opus-5.5      |    4 |            7 |     8 |
+| fable-5.2     |    2 |            9 |     9 |
 How to apply:
 - These are **defaults, not limits**. You have standing permission to override them: if a
   cheaper model's output doesn't meet the bar, rerun or redo with a smarter model without
@@ -116,32 +116,32 @@ How to apply:
   intelligence > taste > cost.
 - **Planning stays with fable-5.** Fable writes the plan/architecture; when the resulting
   work fits the gpt lane (clear-spec implementation, bulk/mechanical), hand the finished
-  plan to **gpt-5.6-sol** to execute rather than implementing it on a Claude model.
+  plan to **gpt-6.2-astra** to execute rather than implementing it on a Claude model.
 - **Bulk/mechanical work** (clear-spec implementation, data analysis, migrations):
-  **gpt-5.6-sol**. It's effectively free.
+  **gpt-6.2-astra**. It's effectively free.
 - **Anything user-facing** (UI, copy, API design) needs **taste ≥ 7**.
-- **Reviews** of plans/implementations: **fable-5** or **opus-4.8**, optionally gpt-5.6-sol as
+- **Reviews** of plans/implementations: **fable-5.2** or **opus-5.5**, optionally gpt-6.2-astra as
   an extra independent perspective.
 - **Never use Haiku.**
-- Mechanics: gpt-5.6-sol is only reachable through the **Codex CLI** (`codex exec` /
-  `codex review`; `~/.codex/config.toml` defaults to gpt-5.6-sol at **medium** reasoning
+- Mechanics: gpt-6.2-astra is only reachable through the **Codex CLI** (`codex exec` /
+  `codex review`; `~/.codex/config.toml` defaults to gpt-6.2-astra at **medium** reasoning
   effort — leave it there unless a task clearly needs more). Use the
   `codex-implementation`, `codex-review`, and `codex-computer-use` skills. For work they
   don't cover (investigation, data analysis), run `codex exec -s read-only` with a
   self-contained prompt.
-- Claude models (`sonnet-5`, `opus-4.8`, `fable-5`) run through the Agent/Workflow model
+- Claude models (`sonnet-5.5`, `opus-5.5`, `fable-5.2`) run through the Agent/Workflow model
   parameter.
-Using gpt-5.6-sol inside workflows/subagents (the model parameter only takes Claude models, so
+Using gpt-6.2-astra inside workflows/subagents (the model parameter only takes Claude models, so
 use a wrapper):
 - Spawn a thin Claude wrapper agent with `model: 'sonnet', effort: 'low'` whose prompt
   tells it to write a self-contained Codex prompt, run `codex exec` via Bash, and return
   the report. Use `schema` on the wrapper for structured output.
-- Always label these agents with a **`gpt-5.6-sol:`** prefix (e.g. `{label:
-  'gpt-5.6-sol:review-auth'}`). The UI shows the wrapper's Claude model, so the label is the
-  only signal that the real worker is gpt-5.6-sol.
+- Always label these agents with a **`gpt-6.2-astra:`** prefix (e.g. `{label:
+  'gpt-6.2-astra:review-auth'}`). The UI shows the wrapper's Claude model, so the label is the
+  only signal that the real worker is gpt-6.2-astra.
 - Codex runs can exceed Bash's 10-minute timeout — pass an explicit timeout, or run in the
   background and poll for the report file.
-- Parallel gpt-5.6-sol implementation agents must use `isolation: 'worktree'` so Codex edits
+- Parallel gpt-6.2-astra implementation agents must use `isolation: 'worktree'` so Codex edits
   don't collide in the shared checkout.
 - Workflow token budgets only count Claude tokens; Codex work is free and invisible to
   `budget.spent()`.

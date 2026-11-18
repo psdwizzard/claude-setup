@@ -1,5 +1,19 @@
 # Dev Blog
 
+## 2026-11-18 — Model names bumped to current versions
+
+**What changed:** Renamed every model reference in the payload to current versions:
+gpt-5.6-sol → gpt-6.2-astra, sonnet-5 → sonnet-5.5, opus-5/opus-4.8 → opus-5.5,
+fable-5 → fable-5.2 (global CLAUDE.md rubric + table, codex skill descriptions).
+`install.ps1`, `install.sh` and README now set `model = "gpt-6.2-astra"` in Codex config.
+Also applied the repo payload to the Windows desktop (it was behind: gained spin-up,
+multi-account close-out, share-site and delegation rules).
+
+**State:** Rankings (cost/intelligence/taste) carried over unchanged from the old names.
+
+**Where we left off:** Re-score the model table once the new versions have seen real use.
+`collect.ps1` still lacks the work-import sanitizer that `collect.sh` has.
+
 ## 2026-08-30 — Sanitizing collector + upstream config sync
 
 **What changed:** `collect.sh` now sanitizes the payload after copying: it strips the
